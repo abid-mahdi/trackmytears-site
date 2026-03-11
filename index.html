@@ -27,12 +27,17 @@
             --gradient-end: #e94eb8;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
         a {
@@ -45,6 +50,57 @@
             color: #a9a3ff;
         }
 
+        /* Scroll animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-left.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(60px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-right.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .reveal-scale {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal-scale.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .delay-1 { transition-delay: 0.1s; }
+        .delay-2 { transition-delay: 0.2s; }
+        .delay-3 { transition-delay: 0.3s; }
+        .delay-4 { transition-delay: 0.4s; }
+        .delay-5 { transition-delay: 0.5s; }
+
         /* Navigation */
         nav {
             position: fixed;
@@ -53,13 +109,20 @@
             right: 0;
             z-index: 100;
             padding: 1rem 2rem;
-            background: rgba(10, 10, 15, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 15, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-bottom: 1px solid transparent;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 15, 0.92);
+            border-bottom-color: var(--border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
         }
 
         .nav-brand {
@@ -69,6 +132,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-brand svg {
+            flex-shrink: 0;
         }
 
         .nav-links {
@@ -82,10 +151,33 @@
             font-size: 0.9rem;
             font-weight: 500;
             transition: color 0.2s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            transition: width 0.3s;
+            border-radius: 2px;
         }
 
         .nav-links a:hover {
             color: var(--text);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Parallax wrapper */
+        .parallax-section {
+            position: relative;
+            overflow: hidden;
         }
 
         /* Hero */
@@ -101,15 +193,57 @@
             overflow: hidden;
         }
 
-        .hero::before {
-            content: '';
+        .hero-bg {
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(ellipse at 50% 30%, var(--accent-glow), transparent 60%);
-            pointer-events: none;
+            inset: 0;
+            z-index: -1;
+        }
+
+        .hero-bg .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            will-change: transform;
+        }
+
+        .hero-bg .orb-1 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.5), transparent 70%);
+            top: -20%;
+            left: -10%;
+            animation: float-orb 20s ease-in-out infinite;
+        }
+
+        .hero-bg .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(233, 78, 184, 0.4), transparent 70%);
+            bottom: -20%;
+            right: -10%;
+            animation: float-orb 25s ease-in-out infinite reverse;
+        }
+
+        .hero-bg .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.3), transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pulse-orb 8s ease-in-out infinite;
+        }
+
+        @keyframes float-orb {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -40px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.95); }
+        }
+
+        @keyframes pulse-orb {
+            0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.3); }
         }
 
         .hero-badge {
@@ -119,22 +253,27 @@
             padding: 0.4rem 1rem;
             border-radius: 999px;
             border: 1px solid var(--border);
-            background: var(--bg-card);
+            background: rgba(20, 20, 31, 0.6);
+            backdrop-filter: blur(10px);
             font-size: 0.8rem;
             color: var(--text-muted);
             margin-bottom: 2rem;
+            animation: hero-fade-in 1s ease-out 0.2s both;
         }
 
         .hero-badge span {
             color: var(--accent-soft);
+            font-weight: 600;
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-size: clamp(2.8rem, 7vw, 5rem);
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1.08;
             margin-bottom: 1.5rem;
-            max-width: 700px;
+            max-width: 750px;
+            letter-spacing: -0.03em;
+            animation: hero-fade-in 1s ease-out 0.4s both;
         }
 
         .hero h1 .gradient {
@@ -145,11 +284,12 @@
         }
 
         .hero p {
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             color: var(--text-muted);
-            max-width: 540px;
+            max-width: 560px;
             margin-bottom: 2.5rem;
             line-height: 1.7;
+            animation: hero-fade-in 1s ease-out 0.6s both;
         }
 
         .hero-buttons {
@@ -157,142 +297,474 @@
             gap: 1rem;
             flex-wrap: wrap;
             justify-content: center;
+            animation: hero-fade-in 1s ease-out 0.8s both;
+        }
+
+        @keyframes hero-fade-in {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero-phone {
+            margin-top: 4rem;
+            animation: hero-fade-in 1.2s ease-out 1s both;
+            perspective: 1000px;
+        }
+
+        .hero-phone .phone-mockup {
+            transform: rotateX(4deg);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero-phone:hover .phone-mockup {
+            transform: rotateX(0deg) scale(1.02);
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.85rem 1.75rem;
-            border-radius: 12px;
+            padding: 0.9rem 1.85rem;
+            border-radius: 14px;
             font-size: 0.95rem;
             font-weight: 600;
-            transition: all 0.25s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
             border: none;
+            position: relative;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
             color: #fff;
-            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            box-shadow: 0 4px 24px rgba(108, 99, 255, 0.35);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(108, 99, 255, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(108, 99, 255, 0.5);
             color: #fff;
         }
 
         .btn-secondary {
-            background: var(--bg-card);
+            background: rgba(20, 20, 31, 0.6);
             color: var(--text);
             border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
         }
 
         .btn-secondary:hover {
             background: var(--bg-card-hover);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            border-color: rgba(108, 99, 255, 0.3);
         }
 
-        /* Features */
+        /* Phone Mockup - CSS Only */
+        .phone-mockup {
+            position: relative;
+            width: 260px;
+            border-radius: 36px;
+            background: #1a1a2e;
+            padding: 12px;
+            box-shadow:
+                0 0 0 2px rgba(108, 99, 255, 0.15),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                0 0 80px rgba(108, 99, 255, 0.08);
+        }
+
+        .phone-mockup::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 24px;
+            background: #1a1a2e;
+            border-radius: 0 0 16px 16px;
+            z-index: 2;
+        }
+
+        .phone-mockup img {
+            width: 100%;
+            border-radius: 24px;
+            display: block;
+        }
+
+        .phone-mockup-lg {
+            width: 300px;
+            border-radius: 40px;
+            padding: 14px;
+        }
+
+        .phone-mockup-lg::before {
+            width: 100px;
+            height: 28px;
+            border-radius: 0 0 18px 18px;
+        }
+
+        .phone-mockup-lg img {
+            border-radius: 28px;
+        }
+
+        /* Sections */
         .section {
-            padding: 6rem 2rem;
-            max-width: 1100px;
+            padding: 8rem 2rem;
+            max-width: 1200px;
             margin: 0 auto;
+            position: relative;
         }
 
         .section-header {
             text-align: center;
-            margin-bottom: 4rem;
+            margin-bottom: 4.5rem;
+        }
+
+        .section-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent-soft);
+            margin-bottom: 1rem;
+            background: var(--accent-glow);
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
         }
 
         .section-header h2 {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
         .section-header p {
             color: var(--text-muted);
-            max-width: 500px;
+            max-width: 520px;
             margin: 0 auto;
+            font-size: 1.1rem;
         }
 
+        /* Screenshot Carousel */
+        .screenshot-section {
+            padding: 6rem 0 8rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .screenshot-section .section-header {
+            padding: 0 2rem;
+        }
+
+        .screenshot-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+
+        .screenshot-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+
+        .carousel-wrapper {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .carousel-wrapper::before,
+        .carousel-wrapper::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 120px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .carousel-wrapper::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--bg), transparent);
+        }
+
+        .carousel-wrapper::after {
+            right: 0;
+            background: linear-gradient(-90deg, var(--bg), transparent);
+        }
+
+        .carousel-track {
+            display: flex;
+            gap: 2rem;
+            animation: carousel-scroll 40s linear infinite;
+            width: max-content;
+        }
+
+        .carousel-track:hover {
+            animation-play-state: paused;
+        }
+
+        .carousel-item {
+            flex-shrink: 0;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .carousel-item:hover {
+            transform: scale(1.05) translateY(-8px);
+        }
+
+        .carousel-item .phone-mockup {
+            width: 220px;
+            box-shadow:
+                0 0 0 2px rgba(108, 99, 255, 0.1),
+                0 16px 48px rgba(0, 0, 0, 0.4),
+                0 0 60px rgba(108, 99, 255, 0.05);
+        }
+
+        @keyframes carousel-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Features Grid */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1.5rem;
         }
 
         .feature-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 2rem;
-            transition: all 0.3s;
+            border-radius: 20px;
+            padding: 2.25rem;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gradient-start), var(--gradient-end), transparent);
+            opacity: 0;
+            transition: opacity 0.4s;
         }
 
         .feature-card:hover {
             background: var(--bg-card-hover);
             border-color: rgba(108, 99, 255, 0.3);
-            transform: translateY(-4px);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 40px rgba(108, 99, 255, 0.06);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
         }
 
         .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
             background: var(--accent-glow);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(108, 99, 255, 0.1);
         }
 
         .feature-card h3 {
             font-size: 1.15rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.01em;
         }
 
         .feature-card p {
             color: var(--text-muted);
             font-size: 0.9rem;
-            line-height: 1.6;
+            line-height: 1.65;
+        }
+
+        /* Feature Showcase (alternating layout) */
+        .showcase {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .showcase-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            margin-bottom: 8rem;
+        }
+
+        .showcase-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .showcase-row.reverse {
+            direction: rtl;
+        }
+
+        .showcase-row.reverse > * {
+            direction: ltr;
+        }
+
+        .showcase-text h3 {
+            font-size: clamp(1.6rem, 3vw, 2.2rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .showcase-text p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .showcase-text .feature-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            color: var(--accent-soft);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .showcase-phone {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .showcase-phone .phone-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.15), transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            filter: blur(40px);
+        }
+
+        .showcase-phone .phone-mockup {
+            position: relative;
+            z-index: 1;
         }
 
         /* Privacy Banner */
+        .privacy-section {
+            padding: 8rem 2rem;
+            position: relative;
+        }
+
+        .privacy-section .parallax-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .privacy-section .parallax-bg::before {
+            content: '';
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.08), transparent 60%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+        }
+
         .privacy-banner {
-            background: var(--bg-card);
+            background: rgba(20, 20, 31, 0.6);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 3rem;
+            border-radius: 24px;
+            padding: 4rem 3rem;
             text-align: center;
-            max-width: 800px;
-            margin: 0 auto 4rem;
+            max-width: 850px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .privacy-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gradient-start), var(--gradient-end), transparent);
+        }
+
+        .privacy-banner .shield-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(108, 99, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 2rem;
         }
 
         .privacy-banner h2 {
-            font-size: 1.5rem;
+            font-size: clamp(1.6rem, 3vw, 2rem);
+            font-weight: 800;
             margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
-        .privacy-banner p {
+        .privacy-banner > p {
             color: var(--text-muted);
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             max-width: 550px;
             margin-left: auto;
             margin-right: auto;
+            font-size: 1.05rem;
         }
 
         .privacy-points {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
         }
 
         .privacy-point {
@@ -301,6 +773,10 @@
             gap: 0.5rem;
             font-size: 0.9rem;
             color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 999px;
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid rgba(74, 222, 128, 0.1);
         }
 
         .privacy-point .check {
@@ -308,20 +784,50 @@
             font-weight: bold;
         }
 
+        /* CTA Section */
+        .cta-section {
+            padding: 8rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section .cta-bg {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            background: linear-gradient(180deg, transparent, rgba(108, 99, 255, 0.04), transparent);
+        }
+
+        .cta-section h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            letter-spacing: -0.03em;
+        }
+
+        .cta-section p {
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         /* Footer */
         footer {
             border-top: 1px solid var(--border);
-            padding: 3rem 2rem;
-            text-align: center;
+            padding: 3.5rem 2rem;
         }
 
         .footer-content {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
+            gap: 1.25rem;
         }
 
         .footer-links {
@@ -333,6 +839,11 @@
         .footer-links a {
             color: var(--text-muted);
             font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text);
         }
 
         .footer-copyright {
@@ -340,14 +851,64 @@
             font-size: 0.8rem;
         }
 
+        /* Floating teardrops background */
+        .teardrops-bg {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .teardrop-float {
+            position: absolute;
+            opacity: 0.03;
+            animation: teardrop-rise linear infinite;
+        }
+
+        @keyframes teardrop-rise {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.03; }
+            90% { opacity: 0.03; }
+            100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+        }
+
         /* Responsive */
+        @media (max-width: 900px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .showcase-row {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+                text-align: center;
+            }
+
+            .showcase-row.reverse {
+                direction: ltr;
+            }
+
+            .showcase-text .feature-tag {
+                margin-left: 0.25rem;
+            }
+
+            .phone-mockup-lg {
+                width: 260px;
+            }
+        }
+
         @media (max-width: 640px) {
             nav {
-                padding: 1rem;
+                padding: 0.85rem 1.25rem;
             }
 
             .nav-links {
                 gap: 1rem;
+            }
+
+            .nav-links a {
+                font-size: 0.8rem;
             }
 
             .hero {
@@ -355,7 +916,7 @@
             }
 
             .section {
-                padding: 4rem 1.5rem;
+                padding: 5rem 1.5rem;
             }
 
             .features-grid {
@@ -363,28 +924,67 @@
             }
 
             .privacy-banner {
-                padding: 2rem 1.5rem;
+                padding: 2.5rem 1.5rem;
             }
 
             .privacy-points {
                 flex-direction: column;
                 align-items: center;
             }
+
+            .carousel-item .phone-mockup {
+                width: 180px;
+            }
+
+            .showcase {
+                padding: 3rem 1.5rem;
+            }
+
+            .showcase-row {
+                margin-bottom: 5rem;
+            }
+
+            .hero-phone .phone-mockup {
+                width: 220px;
+            }
+
+            .cta-section {
+                padding: 5rem 1.5rem;
+            }
+
+            .privacy-section {
+                padding: 5rem 1.5rem;
+            }
+
+            .screenshot-section {
+                padding: 4rem 0 5rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-brand">TrackMyTears</div>
+    <!-- Floating teardrops background -->
+    <div class="teardrops-bg" id="teardrops-bg"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-brand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 6px;"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2z" fill="url(#tear-grad)"/><defs><linearGradient id="tear-grad" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#6c63ff"/><stop offset="1" stop-color="#e94eb8"/></linearGradient></defs></svg>TrackMyTears</div>
         <ul class="nav-links">
             <li><a href="#features">Features</a></li>
+            <li><a href="#screenshots">Screenshots</a></li>
             <li><a href="#privacy">Privacy</a></li>
             <li><a href="privacy.html">Privacy Policy</a></li>
         </ul>
     </nav>
 
-    <section class="hero">
+    <!-- Hero Section -->
+    <section class="hero parallax-section" data-parallax-speed="0.3">
+        <div class="hero-bg">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+        </div>
         <div class="hero-badge">
             <span>New</span> Now available on the App Store
         </div>
@@ -395,41 +995,81 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 21.99 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 21.99C7.79 22.03 6.8 20.68 5.96 19.47C4.25 16.97 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
                 Download on the App Store
             </a>
+            <a href="#features" class="btn btn-secondary">
+                Learn More
+            </a>
+        </div>
+        <div class="hero-phone">
+            <div class="phone-mockup phone-mockup-lg">
+                <img src="screenshots/03_dashboard.png" alt="TrackMyTears Dashboard" loading="eager">
+            </div>
         </div>
     </section>
 
+    <!-- Screenshot Carousel -->
+    <section class="screenshot-section" id="screenshots">
+        <div class="section-header reveal">
+            <span class="section-label">App Preview</span>
+            <h2>Designed with care, built with purpose</h2>
+            <p>Every screen crafted to support your emotional well-being journey.</p>
+        </div>
+        <div class="carousel-wrapper">
+            <div class="carousel-track" id="carousel-track">
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/03_dashboard.png" alt="Dashboard" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/04_journal.png" alt="Journal" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/05_settings.png" alt="Settings" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/06_new_entry.png" alt="New Entry" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/07_calendar.png" alt="Calendar" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/08_filters.png" alt="Filters" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/09_breathing.png" alt="Breathing Exercise" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/10_ambient_sounds.png" alt="Ambient Sounds" loading="lazy"></div></div>
+                <!-- Duplicated for seamless loop -->
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/03_dashboard.png" alt="Dashboard" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/04_journal.png" alt="Journal" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/05_settings.png" alt="Settings" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/06_new_entry.png" alt="New Entry" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/07_calendar.png" alt="Calendar" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/08_filters.png" alt="Filters" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/09_breathing.png" alt="Breathing Exercise" loading="lazy"></div></div>
+                <div class="carousel-item"><div class="phone-mockup"><img src="screenshots/10_ambient_sounds.png" alt="Ambient Sounds" loading="lazy"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
     <section class="section" id="features">
-        <div class="section-header">
+        <div class="section-header reveal">
+            <span class="section-label">Features</span>
             <h2>Built for your emotional well-being</h2>
             <p>Everything you need to understand and reflect on your emotional moments.</p>
         </div>
         <div class="features-grid">
-            <div class="feature-card">
+            <div class="feature-card reveal delay-1">
                 <div class="feature-icon">&#x1F4DD;</div>
                 <h3>Multi-Modal Journaling</h3>
                 <p>Log emotional moments with text or voice memos. Classify tears as happy or sad with customizable intensity levels.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-2">
                 <div class="feature-icon">&#x1F4CA;</div>
                 <h3>Dashboard &amp; Insights</h3>
                 <p>Visual summaries of your emotional trends with charts, weekly recaps, and personalized insights to help you grow.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-3">
                 <div class="feature-icon">&#x1F3A4;</div>
                 <h3>Voice Memos</h3>
                 <p>Record how you feel in the moment. WhatsApp-style inline player with waveform visualization and seek controls.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-4">
                 <div class="feature-icon">&#x1F52E;</div>
                 <h3>Memories &amp; Patterns</h3>
                 <p>"On this day" flashbacks and recurring trigger detection help you identify emotional patterns over time.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-5">
                 <div class="feature-icon">&#x1F3B5;</div>
                 <h3>Ambient Sounds</h3>
                 <p>8 calming soundscapes including rain, ocean waves, and forest sounds to create a peaceful journaling environment.</p>
             </div>
-            <div class="feature-card">
+            <div class="feature-card reveal delay-1">
                 <div class="feature-icon">&#x1F512;</div>
                 <h3>Private by Design</h3>
                 <p>All data stays on your device and your iCloud. No servers, no analytics, no ads. Your feelings are yours alone.</p>
@@ -437,8 +1077,68 @@
         </div>
     </section>
 
-    <section class="section" id="privacy">
-        <div class="privacy-banner">
+    <!-- Feature Showcase with phone mockups -->
+    <div class="showcase">
+        <div class="showcase-row">
+            <div class="showcase-text reveal-left">
+                <h3>Track every emotional moment</h3>
+                <p>Whether they are happy tears or sad tears, every moment matters. Quickly log how you feel with our intuitive entry flow, add triggers, set intensity, and let AI summarize your patterns.</p>
+                <div>
+                    <span class="feature-tag">Quick Entry</span>
+                    <span class="feature-tag">Happy / Sad Tears</span>
+                    <span class="feature-tag">AI Summaries</span>
+                </div>
+            </div>
+            <div class="showcase-phone reveal-right">
+                <div class="phone-glow"></div>
+                <div class="phone-mockup phone-mockup-lg">
+                    <img src="screenshots/06_new_entry.png" alt="New Entry Screen" loading="lazy">
+                </div>
+            </div>
+        </div>
+
+        <div class="showcase-row reverse">
+            <div class="showcase-text reveal-right">
+                <h3>Your journal, beautifully organized</h3>
+                <p>Browse your entries in a clean list or calendar view. Filter by tear type, intensity, or triggers. Search through your history to find exactly what you need.</p>
+                <div>
+                    <span class="feature-tag">Calendar View</span>
+                    <span class="feature-tag">Smart Filters</span>
+                    <span class="feature-tag">Full Search</span>
+                </div>
+            </div>
+            <div class="showcase-phone reveal-left">
+                <div class="phone-glow"></div>
+                <div class="phone-mockup phone-mockup-lg">
+                    <img src="screenshots/04_journal.png" alt="Journal Screen" loading="lazy">
+                </div>
+            </div>
+        </div>
+
+        <div class="showcase-row">
+            <div class="showcase-text reveal-left">
+                <h3>Find your calm</h3>
+                <p>Built-in breathing exercises and ambient soundscapes create a peaceful space for reflection. Choose from rain, ocean waves, forest, and more.</p>
+                <div>
+                    <span class="feature-tag">Breathing Exercises</span>
+                    <span class="feature-tag">8 Soundscapes</span>
+                    <span class="feature-tag">Background Audio</span>
+                </div>
+            </div>
+            <div class="showcase-phone reveal-right">
+                <div class="phone-glow"></div>
+                <div class="phone-mockup phone-mockup-lg">
+                    <img src="screenshots/09_breathing.png" alt="Breathing Exercise" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Section -->
+    <section class="privacy-section parallax-section" id="privacy" data-parallax-speed="0.15">
+        <div class="parallax-bg"></div>
+        <div class="privacy-banner reveal-scale">
+            <div class="shield-icon">&#x1F6E1;</div>
             <h2>Your privacy is not optional</h2>
             <p>TrackMyTears was built from the ground up with a simple principle: your emotional data belongs to you and only you.</p>
             <div class="privacy-points">
@@ -452,9 +1152,23 @@
         </div>
     </section>
 
+    <!-- CTA Section -->
+    <section class="cta-section parallax-section" data-parallax-speed="0.1">
+        <div class="cta-bg"></div>
+        <div class="reveal">
+            <h2>Start understanding <span class="gradient">your emotions</span></h2>
+            <p>Download TrackMyTears today and begin your journey to deeper emotional awareness.</p>
+            <a href="#" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 21.99 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.1 21.99C7.79 22.03 6.8 20.68 5.96 19.47C4.25 16.97 2.94 12.45 4.7 9.39C5.57 7.87 7.13 6.91 8.82 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+                Download on the App Store
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
     <footer>
         <div class="footer-content">
-            <div class="nav-brand">TrackMyTears</div>
+            <div class="nav-brand"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 6px;"><path d="M12 2C12 2 5 10.5 5 15a7 7 0 0 0 14 0C19 10.5 12 2 12 2z" fill="url(#tear-grad2)"/><defs><linearGradient id="tear-grad2" x1="12" y1="2" x2="12" y2="22" gradientUnits="userSpaceOnUse"><stop stop-color="#6c63ff"/><stop offset="1" stop-color="#e94eb8"/></linearGradient></defs></svg>TrackMyTears</div>
             <ul class="footer-links">
                 <li><a href="privacy.html">Privacy Policy</a></li>
                 <li><a href="mailto:support@epicabid.com">Contact</a></li>
@@ -462,6 +1176,104 @@
             <p class="footer-copyright">&copy; 2026 EpicAbid. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // IntersectionObserver for scroll animations
+        (function() {
+            var observer = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            });
+
+            document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale').forEach(function(el) {
+                observer.observe(el);
+            });
+        })();
+
+        // Navbar scroll effect
+        (function() {
+            var navbar = document.getElementById('navbar');
+            var ticking = false;
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(function() {
+                        if (window.scrollY > 50) {
+                            navbar.classList.add('scrolled');
+                        } else {
+                            navbar.classList.remove('scrolled');
+                        }
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        })();
+
+        // Parallax scrolling
+        (function() {
+            var parallaxSections = document.querySelectorAll('[data-parallax-speed]');
+            var ticking = false;
+
+            function updateParallax() {
+                var scrollY = window.scrollY;
+                parallaxSections.forEach(function(section) {
+                    var speed = parseFloat(section.dataset.parallaxSpeed);
+                    var rect = section.getBoundingClientRect();
+                    var offsetY = (rect.top + scrollY - window.innerHeight / 2) * speed;
+                    var children = section.querySelectorAll('.orb, .parallax-bg');
+                    children.forEach(function(child) {
+                        child.style.transform = 'translateY(' + (-offsetY * 0.5) + 'px)';
+                    });
+                });
+            }
+
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(function() {
+                        updateParallax();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+        })();
+
+        // Floating teardrops background
+        (function() {
+            var container = document.getElementById('teardrops-bg');
+            var teardropSVG = '<svg width="20" height="28" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 0C12 0 3 13 3 20a9 9 0 0 0 18 0C21 13 12 0 12 0z" fill="currentColor"/></svg>';
+
+            for (var i = 0; i < 12; i++) {
+                var drop = document.createElement('div');
+                drop.className = 'teardrop-float';
+                drop.innerHTML = teardropSVG;
+                drop.style.left = (Math.random() * 100) + '%';
+                drop.style.animationDuration = (15 + Math.random() * 25) + 's';
+                drop.style.animationDelay = (Math.random() * 20) + 's';
+                drop.style.fontSize = (0.6 + Math.random() * 0.8) + 'rem';
+                drop.style.color = Math.random() > 0.5 ? '#6c63ff' : '#e94eb8';
+                container.appendChild(drop);
+            }
+        })();
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 
 </body>
 </html>
